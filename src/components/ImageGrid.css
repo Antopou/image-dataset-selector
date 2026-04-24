@@ -32,3 +32,62 @@
 .image-grid-viewport::-webkit-scrollbar-thumb:hover {
   background: #525870;
 }
+
+/* ── Delete overlay ── */
+.delete-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: delete-fade-in 0.2s ease-out;
+}
+
+.delete-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 32px;
+  background: #1a1e28;
+  border: 1px solid #2a2f3d;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  animation: delete-slide-up 0.3s ease-out;
+}
+
+.delete-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #2a2f3a;
+  border-top: 2px solid #ef4444;
+  border-radius: 50%;
+  animation: delete-spin 1s linear infinite;
+}
+
+.delete-text {
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 12px;
+  color: #e8ecf4;
+  font-weight: 500;
+}
+
+@keyframes delete-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes delete-slide-up {
+  from { transform: translateY(16px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes delete-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

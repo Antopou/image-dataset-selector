@@ -226,6 +226,7 @@ label {
 
 .btn-danger { background: transparent; color: var(--red); border-color: rgba(255,92,106,0.3); }
 .btn-danger:hover:not(:disabled) { background: rgba(255,92,106,0.1); border-color: var(--red); box-shadow: 0 0 0 3px var(--red-glow); }
+.btn-danger:focus { outline: none; box-shadow: 0 0 0 2px var(--red-glow); }
 
 .btn-success { background: transparent; color: var(--green); border-color: rgba(52,210,126,0.3); }
 .btn-success:hover:not(:disabled) { background: rgba(52,210,126,0.1); border-color: var(--green); box-shadow: 0 0 0 3px var(--green-glow); }

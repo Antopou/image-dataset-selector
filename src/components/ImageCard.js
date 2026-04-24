@@ -5,6 +5,7 @@ const imageCache = new Map();
 
 function ImageCard({ image, imageIndex, isSelected, isLocked, onCardClick, onToggleLock, onDragMouseDown, onDragMouseEnter, onPreview, size, imageFitMode }) {
   const [src, setSrc] = useState(image.previewSrc || '');
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,6 +41,10 @@ function ImageCard({ image, imageIndex, isSelected, isLocked, onCardClick, onTog
     return () => { cancelled = true; };
   }, [image.path, image.previewSrc, image.name]);
 
+  useEffect(() => {
+    setImageError(false);
+  }, [src]);
+
   const handleClick = (event) => {
     if (event.detail === 2) { // Double click
       onPreview(image, imageIndex);
@@ -65,6 +70,18 @@ function ImageCard({ image, imageIndex, isSelected, isLocked, onCardClick, onTog
     }
   };
 
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  const handleRetryLoad = () => {
+    setImageError(false);
+    // Force reload by clearing cache for this image
+    if (image.path) {
+      imageCache.delete(image.path);
+    }
+  };
+
   return (
     <div
       className={`image-card ${isSelected ? 'selected' : ''} ${isLocked ? 'locked' : ''} ${imageFitMode === 'contain' ? 'fit-contain' : 'fit-cover'}`}
@@ -73,7 +90,23 @@ function ImageCard({ image, imageIndex, isSelected, isLocked, onCardClick, onTog
       onMouseEnter={handleMouseEnter}
       title={`${image.name}${isLocked ? ' (locked)' : ''}`}
     >
-      <img src={src} alt={image.name} loading="lazy" decoding="async" />
+      {!src ? (
+        <div className="image-loading-placeholder">
+        </div>
+      ) : imageError ? (
+        <div className="image-error-placeholder" onClick={handleRetryLoad}>
+          <div className="error-icon">⚠️</div>
+          <div className="error-text">Click to retry</div>
+        </div>
+      ) : (
+        <img 
+          src={src} 
+          alt={image.name} 
+          loading="lazy" 
+          decoding="async" 
+          onError={handleImageError}
+        />
+      )}
       <div className="image-card-overlay">
         <div className="checkbox">{isSelected && '✓'}</div>
         {isLocked && (

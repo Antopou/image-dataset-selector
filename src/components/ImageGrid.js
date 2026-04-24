@@ -18,6 +18,7 @@ const ImageGrid = forwardRef(function ImageGrid({
   previewSize,
   imageFitMode,
   loading,
+  isDeleting,
 }, ref) {
   const [scrollTop, setScrollTop] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
@@ -120,6 +121,14 @@ const ImageGrid = forwardRef(function ImageGrid({
 
   return (
     <div ref={viewportRef} className={`image-grid-viewport${isDragging ? ' selecting' : ''}`}>
+      {isDeleting && (
+        <div className="delete-overlay">
+          <div className="delete-indicator">
+            <div className="delete-spinner"></div>
+            <div className="delete-text">Deleting images...</div>
+          </div>
+        </div>
+      )}
       <div
         className="image-grid"
         style={{

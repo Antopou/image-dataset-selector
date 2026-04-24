@@ -113,7 +113,7 @@
   justify-content: center;
   color: #ffffff;
   font-size: 12px;
-  opacity: 0.9;
+  opacity: 0;
   transition: opacity 0.15s ease, transform 0.15s ease;
   transform: scale(1);
   box-shadow: 0 2px 8px rgba(107, 114, 128, 0.4);
@@ -122,14 +122,14 @@
   margin-left: 6px;
 }
 
-.lock-indicator:hover {
+.image-card.locked:hover .lock-indicator {
+  opacity: 0.9;
+}
+
+.image-card.locked:hover .lock-indicator:hover {
   opacity: 1;
   transform: scale(1.1);
   background: #4b5563;
-}
-
-.image-card.locked .lock-indicator {
-  opacity: 1;
 }
 
 /* ── Filename tooltip ── */
@@ -163,6 +163,78 @@
 .image-grid-viewport.selecting .image-card.loading {
   cursor: default;
 }
+
+/* ── Image loading placeholder ── */
+.image-loading-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #1a1e28;
+  position: relative;
+  overflow: hidden;
+}
+
+.image-loading-placeholder::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 20%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.03) 80%,
+    transparent 100%
+  );
+  animation: subtle-shimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes subtle-shimmer {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 150%;
+  }
+  100% {
+    left: 150%;
+  }
+}
+
+/* ── Image error placeholder ── */
+.image-error-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #2a2f3a;
+  color: #ef4444;
+  font-size: 12px;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.image-error-placeholder:hover {
+  background: #353a48;
+}
+
+.error-icon {
+  font-size: 20px;
+  opacity: 0.7;
+}
+
+.error-text {
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 10px;
+  opacity: 0.6;
+  text-align: center;
+}
+
 
 @keyframes cardFadeIn {
   from {
