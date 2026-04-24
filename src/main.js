@@ -89,16 +89,37 @@ ipcMain.handle('get-images', async (event, folderPath) => {
 });
 
 ipcMain.handle('delete-images', async (event, filePaths) => {
+  const total = filePaths.length;
+  const chunkSize = 20; // Smaller chunks for more frequent progress updates
+  let success = true;
+  let lastError = null;
+
   try {
     const { default: trash } = await import('trash');
-    await trash(filePaths);
+    
+    for (let i = 0; i < total; i += chunkSize) {
+      const chunk = filePaths.slice(i, i + chunkSize);
+      try {
+        await trash(chunk);
+      } catch (e) {
+        // Fallback for individual chunk if trash fails
+        for (const file of chunk) {
+          try { await fs.unlink(file); } catch (err) { lastError = err; }
+        }
+      }
+      
+      const current = Math.min(i + chunkSize, total);
+      event.sender.send('delete-progress', { current, total });
+    }
+    
     return { success: true };
   } catch (error) {
     console.error('Delete error:', error);
-    // Fallback: try using fs.unlink if trash is not available
+    // Ultimate fallback: simple loop
     try {
-      for (const file of filePaths) {
-        await fs.unlink(file);
+      for (let i = 0; i < total; i++) {
+        await fs.unlink(filePaths[i]);
+        event.sender.send('delete-progress', { current: i + 1, total });
       }
       return { success: true };
     } catch (fallbackError) {

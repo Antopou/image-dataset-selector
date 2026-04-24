@@ -9,6 +9,8 @@ try {
     getImages: (folderPath) => ipcRenderer.invoke('get-images', folderPath),
     deleteImages: (filePaths) => ipcRenderer.invoke('delete-images', filePaths),
     getImageData: (imagePath) => ipcRenderer.invoke('get-image-data', imagePath),
+    onDeleteProgress: (callback) => ipcRenderer.on('delete-progress', (event, data) => callback(data)),
+    removeDeleteListeners: () => ipcRenderer.removeAllListeners('delete-progress'),
   };
 
   contextBridge.exposeInMainWorld('electronAPI', apis);

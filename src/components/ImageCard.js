@@ -3,7 +3,7 @@ import './ImageCard.css';
 
 const imageCache = new Map();
 
-function ImageCard({ image, imageIndex, isSelected, isLocked, onCardClick, onToggleLock, onDragMouseDown, onDragMouseEnter, onPreview, size, imageFitMode }) {
+function ImageCard({ image, imageIndex, isSelected, isLocked, isAnchor, onCardClick, onToggleLock, onDragMouseDown, onDragMouseEnter, onPreview, size, imageFitMode }) {
   const [src, setSrc] = useState(image.previewSrc || '');
   const [imageError, setImageError] = useState(false);
 
@@ -109,6 +109,11 @@ function ImageCard({ image, imageIndex, isSelected, isLocked, onCardClick, onTog
       )}
       <div className="image-card-overlay">
         <div className="checkbox">{isSelected && '✓'}</div>
+        {isAnchor && (
+          <div className="anchor-indicator" title="Selection start point (Shift+Click to select range)">
+            ●
+          </div>
+        )}
         {isLocked && (
           <div className="lock-indicator" onClick={handleLockClick} title="Click to unlock">
             🔒

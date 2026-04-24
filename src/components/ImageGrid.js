@@ -19,11 +19,12 @@ const ImageGrid = forwardRef(function ImageGrid({
   imageFitMode,
   loading,
   isDeleting,
+  deleteProgress,
 }, ref) {
   const [scrollTop, setScrollTop] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
   const viewportRef = useRef(null);
-  const anchorIndexRef = useRef(null);
+  const [anchorIndex, setAnchorIndex] = useState(null);
   const dragRef = useRef({ active: false, startIndex: -1, mode: 'select', snapshot: null, moved: false });
   const [isDragging, setIsDragging] = useState(false);
 
@@ -72,13 +73,13 @@ const ImageGrid = forwardRef(function ImageGrid({
       dragRef.current.moved = false;
       return;
     }
-    if (shiftKey && anchorIndexRef.current !== null) {
-      onShiftSelectRange(anchorIndexRef.current, imageIndex);
+    if (shiftKey && anchorIndex !== null) {
+      onShiftSelectRange(anchorIndex, imageIndex);
     } else {
-      anchorIndexRef.current = imageIndex;
+      setAnchorIndex(imageIndex);
       onToggleImage(imagePath);
     }
-  }, [dragSelectEnabled, onToggleImage, onShiftSelectRange]);
+  }, [dragSelectEnabled, onToggleImage, onShiftSelectRange, anchorIndex]);
 
   const visibleGrid = useMemo(() => images.map((image, index) => (
     <ImageCard
@@ -87,6 +88,7 @@ const ImageGrid = forwardRef(function ImageGrid({
       imageIndex={index}
       isSelected={selectedImages.has(image.path)}
       isLocked={lockedImages.has(image.path)}
+      isAnchor={index === anchorIndex}
       onCardClick={handleCardClick}
       onToggleLock={onToggleLock}
       onDragMouseDown={dragSelectEnabled ? handleCardMouseDown : undefined}
@@ -95,7 +97,7 @@ const ImageGrid = forwardRef(function ImageGrid({
       size={previewSize}
       imageFitMode={imageFitMode}
     />
-  )), [images, selectedImages, lockedImages, handleCardClick, onToggleLock, dragSelectEnabled, handleCardMouseDown, handleCardMouseEnter, onPreview, previewSize, imageFitMode]);
+  )), [images, selectedImages, lockedImages, anchorIndex, handleCardClick, onToggleLock, dragSelectEnabled, handleCardMouseDown, handleCardMouseEnter, onPreview, previewSize, imageFitMode]);
 
   if (loading) {
     return (
@@ -125,7 +127,19 @@ const ImageGrid = forwardRef(function ImageGrid({
         <div className="delete-overlay">
           <div className="delete-indicator">
             <div className="delete-spinner"></div>
-            <div className="delete-text">Deleting images...</div>
+            <div className="delete-text">
+              {deleteProgress && deleteProgress.total > 0 
+                ? `Deleting ${deleteProgress.current} / ${deleteProgress.total} images...`
+                : 'Deleting images...'}
+            </div>
+            {deleteProgress && deleteProgress.total > 0 && (
+              <div className="delete-progress-bar-container">
+                <div 
+                  className="delete-progress-bar-fill" 
+                  style={{ width: `${(deleteProgress.current / deleteProgress.total) * 100}%` }}
+                ></div>
+              </div>
+            )}
           </div>
         </div>
       )}

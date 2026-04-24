@@ -1,12 +1,14 @@
+/* ── Backdrop ─────────────────────────────────── */
 .dialog-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  animation: bd-in 0.12s ease-out;
+  animation: bd-in 0.1s ease-out both;
+  /* Use GPU-composited property only */
   will-change: opacity;
 }
 
@@ -15,62 +17,129 @@
   to   { opacity: 1; }
 }
 
+/* ── Dialog Box ───────────────────────────────── */
 .dialog-box {
-  background: #1a1e28;
-  border: 1px solid #2a2f3d;
-  border-radius: 12px;
-  padding: 28px 24px 20px;
-  width: min(400px, 90vw);
-  box-shadow: 0 8px 32px rgba(0,0,0,.6);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 28px 24px 22px;
+  width: min(380px, 90vw);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--glass-border);
   text-align: center;
-  animation: box-in 0.15s ease-out;
-  will-change: transform, opacity;
+  animation: box-in 0.12s cubic-bezier(0.34, 1.2, 0.64, 1) both;
+  /* Promote to GPU layer once, avoid repaints */
+  will-change: transform;
   transform: translateZ(0);
 }
 
 @keyframes box-in {
-  from { transform: scale(0.95) translateY(8px) translateZ(0); opacity: 0; }
-  to   { transform: scale(1) translateY(0) translateZ(0);       opacity: 1; }
+  from { transform: scale(0.94) translateY(6px) translateZ(0); opacity: 0; }
+  to   { transform: scale(1)    translateY(0)   translateZ(0); opacity: 1; }
 }
 
-.dialog-icon {
-  font-size: 44px;
-  line-height: 1;
-  margin-bottom: 18px;
+/* ── Icon (SVG-based, no emoji lag) ─────────────── */
+.dialog-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
 }
 
+.dialog-icon-wrap.danger {
+  background: rgba(255, 92, 106, 0.1);
+  color: var(--red);
+  border: 1px solid rgba(255, 92, 106, 0.2);
+}
+
+.dialog-icon-wrap.info {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid rgba(92, 124, 255, 0.2);
+}
+
+/* ── Text ────────────────────────────────────────── */
 .dialog-title {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
-  color: #e8ecf4;
-  margin-bottom: 10px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
   letter-spacing: -0.3px;
 }
 
 .dialog-message {
-  font-size: 13.5px;
-  color: #8b92a8;
-  line-height: 1.75;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
   white-space: pre-line;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
+/* ── Actions ─────────────────────────────────────── */
 .dialog-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
 }
 
-.dialog-actions .btn {
-  min-width: 120px;
-  padding: 9px 22px;
-  font-size: 14px;
-  justify-content: center;
+.dialog-actions .dialog-btn {
+  min-width: 110px;
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+  outline: none;
 }
 
+.dialog-btn:focus-visible {
+  box-shadow: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--accent-glow);
+}
+
+.dialog-btn.cancel {
+  background: var(--bg-highlight);
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+.dialog-btn.cancel:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+.dialog-btn.confirm-danger {
+  background: var(--red-glow);
+  color: var(--red);
+  border-color: rgba(255, 92, 106, 0.25);
+}
+.dialog-btn.confirm-danger:hover,
+.dialog-btn.confirm-danger:focus {
+  background: var(--red);
+  color: #fff;
+  box-shadow: 0 4px 14px var(--red-glow);
+}
+
+.dialog-btn.confirm-primary {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: rgba(92, 124, 255, 0.25);
+}
+.dialog-btn.confirm-primary:hover,
+.dialog-btn.confirm-primary:focus {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+
+/* ── Hint ─────────────────────────────────────────── */
 .dialog-hint {
-  margin-top: 18px;
-  font-size: 11px;
-  color: #525870;
-  letter-spacing: 0.3px;
+  margin-top: 14px;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.4px;
 }

@@ -5,19 +5,20 @@
   border: 2px solid transparent;
   border-radius: 8px;
   overflow: hidden;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition: border-color 0.15s ease;
   display: flex;
   justify-content: center;
   align-items: center;
   user-select: none;
   width: 100%;
   aspect-ratio: 1 / 1;
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 200px;
 }
 
 .image-card:hover {
   border-color: rgba(108, 138, 255, 0.4);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-  transform: scale(1.02);
 }
 
 .image-card.selected {
@@ -55,29 +56,20 @@
   object-fit: cover;
 }
 
-/* ── Overlay ── */
 .image-card-overlay {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0);
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
   padding: 6px;
-  transition: background 0.15s ease;
   pointer-events: none;
 }
 
-.image-card:hover .image-card-overlay {
-  background: rgba(0, 0, 0, 0.15);
-}
 
-.image-card.selected .image-card-overlay {
-  background: rgba(52, 210, 126, 0.06);
-}
 
 /* ── Checkbox badge ── */
 .checkbox {
@@ -100,6 +92,24 @@
 .image-card.selected .checkbox {
   opacity: 1;
   transform: scale(1);
+}
+
+/* ── Anchor indicator ── */
+.anchor-indicator {
+  width: 22px;
+  height: 22px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 10px;
+  margin-left: 6px;
+  box-shadow: 0 2px 8px var(--accent-glow);
+  pointer-events: auto;
+  cursor: help;
 }
 
 /* ── Lock indicator ── */

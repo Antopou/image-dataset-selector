@@ -59,9 +59,22 @@ function App() {
 
   // Delete operation state
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteProgress, setDeleteProgress] = useState({ current: 0, total: 0 });
 
   // ── Init ────────────────────────────────────────────────────────
   useEffect(() => { setBrowserMode(!window.electronAPI); }, []);
+
+  useEffect(() => {
+    if (!window.electronAPI) return;
+    
+    window.electronAPI.onDeleteProgress((data) => {
+      setDeleteProgress(data);
+    });
+    
+    return () => {
+      window.electronAPI.removeDeleteListeners();
+    };
+  }, []);
 
   useEffect(() => {
     if (!window.electronAPI) return;
@@ -126,7 +139,7 @@ function App() {
       if (persist) {
         localStorage.setItem(LAST_FOLDER_KEY, pathToLoad);
         setLastFolderPath(pathToLoad);
-
+        
         // Update recent folders
         setRecentFolders((prev) => {
           const updated = [pathToLoad, ...prev.filter((f) => f !== pathToLoad)].slice(0, 10);
@@ -229,7 +242,7 @@ function App() {
     setImageFitMode(mode);
   }, []);
 
-
+  
   const handleDragSelectEnabledChange = useCallback((enabled) => {
     setDragSelectEnabled(enabled);
   }, []);
@@ -313,12 +326,13 @@ function App() {
     if (safeImages.length === 0) return;
     const proceed = confirmRequired ? await showConfirm('Delete', `Permanently delete ${safeImages.length} image${safeImages.length > 1 ? 's' : ''}?`) : true;
     if (!proceed) return;
-
+    
     // Find the index of the last selected image to determine where to scroll
     const selectedIndices = Array.from(selectedImages).map(path => images.findIndex(img => img.path === path)).sort((a, b) => a - b);
     const lastSelectedIndex = selectedIndices[selectedIndices.length - 1];
-
+    
     setIsDeleting(true);
+    setDeleteProgress({ current: 0, total: safeImages.length });
     try {
       if (browserMode) {
         // Browser mode - just remove from state
@@ -330,14 +344,14 @@ function App() {
         setImages(prev => prev.filter(img => !selectedImages.has(img.path)));
       }
       setSelectedImages(new Set());
-
+      
       // Scroll to the image that comes after the last selected image
       setTimeout(() => {
         const newGrid = gridRef.current;
         const newViewport = newGrid?.getViewport();
         if (newViewport && typeof newGrid.scrollTo === 'function') {
           const remainingImages = images.length - selectedImages.size;
-
+          
           if (remainingImages === 0) {
             // All images deleted - scroll to top
             newGrid.scrollToTop();
@@ -345,7 +359,7 @@ function App() {
             // Find the image after the last selected one in the new array
             const newImages = images.filter(img => !selectedImages.has(img.path));
             const targetIndex = Math.min(lastSelectedIndex, newImages.length - 1);
-
+            
             if (targetIndex >= 0) {
               // Calculate scroll position to show the target image
               const itemHeight = previewSize + 10; // 10px gap
@@ -360,6 +374,7 @@ function App() {
       alert('Delete failed. Check console for details.');
     } finally {
       setIsDeleting(false);
+      setDeleteProgress({ current: 0, total: 0 });
     }
   }, [selectedImages, images, lockedImages, confirmRequired, showConfirm, browserMode, previewSize]);
 
@@ -374,13 +389,13 @@ function App() {
 
     const pageStart = (currentPage - 1) * pageSize;
     const currentPageImages = images.slice(pageStart, pageStart + pageSize);
-    const toDelete = currentPageImages.filter((img) =>
+    const toDelete = currentPageImages.filter((img) => 
       !selectedImages.has(img.path) && !lockedImages.has(img.path)
     );
 
     if (toDelete.length === 0) return;
 
-    const lockedCount = currentPageImages.filter((img) =>
+    const lockedCount = currentPageImages.filter((img) => 
       !selectedImages.has(img.path) && lockedImages.has(img.path)
     ).length;
 
@@ -401,20 +416,21 @@ function App() {
 
     setLoading(true);
     setIsDeleting(true);
+    setDeleteProgress({ current: 0, total: toDelete.length });
     try {
       const toDeletePaths = new Set(toDelete.map((img) => img.path));
       const result = await window.electronAPI.deleteImages(Array.from(toDeletePaths));
       if (result.success) {
         setImages((prev) => prev.filter((img) => !toDeletePaths.has(img.path)));
         setSelectedImages(new Set());
-
+        
         // Scroll to the last selected image
         setTimeout(() => {
           const newGrid = gridRef.current;
           const newViewport = newGrid?.getViewport();
           if (newViewport && typeof newGrid.scrollTo === 'function') {
             const remainingOnPage = currentPageImages.filter(img => !toDeletePaths.has(img.path)).length;
-
+            
             if (remainingOnPage === 0) {
               // Current page is now empty - scroll to top
               newGrid.scrollToTop();
@@ -422,7 +438,7 @@ function App() {
               // Find the last selected image in the new array and scroll to it
               const newImages = images.filter(img => !toDeletePaths.has(img.path));
               const lastSelectedInNewArray = newImages.findIndex(img => selectedImages.has(img.path));
-
+              
               if (lastSelectedInNewArray >= 0) {
                 // Calculate scroll position to show the last selected image
                 const itemHeight = previewSize + 10; // 10px gap
@@ -438,6 +454,7 @@ function App() {
     } finally {
       setLoading(false);
       setIsDeleting(false);
+      setDeleteProgress({ current: 0, total: 0 });
     }
   }, [selectedImages, images, currentPage, pageSize, confirmRequired, showConfirm, lockedImages, previewSize]);
 
@@ -458,7 +475,7 @@ function App() {
     const handler = (e) => {
       const tag = document.activeElement?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-
+      
       if (e.key === 'Delete' || e.key === 'Backspace') {
         e.preventDefault();
         if (e.shiftKey) handleKeepSelected(); else handleDeleteSelected();
@@ -473,7 +490,7 @@ function App() {
         handleSelectAll();
       } else if (e.key === ' ') {
         e.preventDefault();
-
+        
         // Smooth, controllable scrolling
         const scrollStep = () => {
           const grid = gridRef.current;
@@ -485,7 +502,7 @@ function App() {
             }
           }
         };
-
+        
         scrollStep(); // Scroll immediately
         // Continue scrolling while key is held - smooth and controllable
         if (!spacebarPressed) {
@@ -496,7 +513,7 @@ function App() {
       }
     };
     window.addEventListener('keydown', handler);
-
+    
     const keyupHandler = (e) => {
       if (e.key === ' ') {
         e.preventDefault();
@@ -508,7 +525,7 @@ function App() {
       }
     };
     window.addEventListener('keyup', keyupHandler);
-
+    
     return () => {
       window.removeEventListener('keydown', handler);
       window.removeEventListener('keyup', keyupHandler);
@@ -530,7 +547,7 @@ function App() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-
+      
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
         // Scrolling down and past threshold
         setHeaderVisible(false);
@@ -538,7 +555,7 @@ function App() {
         // Scrolling up
         setHeaderVisible(true);
       }
-
+      
       setLastScrollY(currentScrollY);
     };
 
@@ -625,6 +642,7 @@ function App() {
         imageFitMode={imageFitMode}
         loading={loading}
         isDeleting={isDeleting}
+        deleteProgress={deleteProgress}
       />
 
       {previewImage && (
