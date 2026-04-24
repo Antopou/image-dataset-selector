@@ -1,0 +1,34 @@
+.image-grid-viewport {
+  flex: 1;
+  padding: 16px 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-base, #0d0f14);
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.image-grid {
+  display: grid;
+  align-items: start;
+}
+
+/* Scrollbar */
+.image-grid-viewport::-webkit-scrollbar {
+  width: 6px;
+}
+
+.image-grid-viewport::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.image-grid-viewport::-webkit-scrollbar-thumb {
+  background: #2a2f3d;
+  border-radius: 99px;
+}
+
+.image-grid-viewport::-webkit-scrollbar-thumb:hover {
+  background: #525870;
+}

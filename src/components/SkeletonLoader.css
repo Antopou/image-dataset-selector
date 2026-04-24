@@ -1,0 +1,50 @@
+/* ── Skeleton Loader ── */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  padding: 20px;
+}
+
+.skeleton-card {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-subtle);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 1 / 1;
+}
+
+.skeleton-image {
+  flex: 1;
+  background: linear-gradient(90deg, 
+    var(--bg-elevated) 25%, 
+    var(--bg-highlight) 50%, 
+    var(--bg-elevated) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-text {
+  height: 16px;
+  background: linear-gradient(90deg, 
+    var(--bg-elevated) 25%, 
+    var(--bg-highlight) 50%, 
+    var(--bg-elevated) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  margin: 4px;
+  border-radius: 2px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

@@ -1,0 +1,75 @@
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: bd-in 0.15s ease;
+}
+
+@keyframes bd-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.dialog-box {
+  background: #1a1e28;
+  border: 1px solid #2a2f3d;
+  border-radius: 18px;
+  padding: 36px 32px 28px;
+  width: min(420px, 90vw);
+  box-shadow: 0 32px 80px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.04);
+  text-align: center;
+  animation: box-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes box-in {
+  from { transform: scale(0.88) translateY(16px); opacity: 0; }
+  to   { transform: scale(1) translateY(0);       opacity: 1; }
+}
+
+.dialog-icon {
+  font-size: 44px;
+  line-height: 1;
+  margin-bottom: 18px;
+}
+
+.dialog-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #e8ecf4;
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+
+.dialog-message {
+  font-size: 13.5px;
+  color: #8b92a8;
+  line-height: 1.75;
+  white-space: pre-line;
+  margin-bottom: 28px;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.dialog-actions .btn {
+  min-width: 120px;
+  padding: 9px 22px;
+  font-size: 14px;
+  justify-content: center;
+}
+
+.dialog-hint {
+  margin-top: 18px;
+  font-size: 11px;
+  color: #525870;
+  letter-spacing: 0.3px;
+}
