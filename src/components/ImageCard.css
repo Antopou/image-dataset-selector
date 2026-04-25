@@ -1,7 +1,7 @@
 .image-card {
   position: relative;
   cursor: pointer;
-  background: #1a1e28;
+  background: var(--bg-elevated);
   border: 2px solid transparent;
   border-radius: 8px;
   overflow: hidden;
@@ -22,18 +22,18 @@
 }
 
 .image-card.selected {
-  border-color: #34d27e;
-  box-shadow: 0 0 0 3px rgba(52, 210, 126, 0.2);
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px var(--green-glow);
 }
 
 .image-card.locked {
-  border-color: #6b7280;
-  box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.15);
+  border-color: var(--text-muted);
+  box-shadow: 0 0 0 3px rgba(99, 108, 138, 0.15);
 }
 
 .image-card.locked.selected {
-  border-color: #34d27e;
-  box-shadow: 0 0 0 3px rgba(52, 210, 126, 0.2), 0 0 0 2px rgba(107, 114, 128, 0.15);
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px var(--green-glow);
 }
 
 .image-card img {
@@ -42,10 +42,11 @@
   object-fit: cover;
   object-position: center;
   pointer-events: none;
+  animation: cardFadeIn 0.2s ease-out both;
 }
 
 .image-card.fit-contain {
-  background: #0d0f14;
+  background: var(--bg-base);
 }
 
 .image-card.fit-contain img {
@@ -75,12 +76,12 @@
 .checkbox {
   width: 22px;
   height: 22px;
-  background: #34d27e;
+  background: var(--green);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0d0f14;
+  color: var(--bg-base);
   font-weight: 800;
   font-size: 13px;
   opacity: 0;
@@ -116,7 +117,7 @@
 .lock-indicator {
   width: 22px;
   height: 22px;
-  background: #6b7280;
+  background: var(--text-muted);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -126,7 +127,7 @@
   opacity: 0;
   transition: opacity 0.15s ease, transform 0.15s ease;
   transform: scale(1);
-  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.4);
+  box-shadow: 0 2px 8px rgba(99, 108, 138, 0.4);
   pointer-events: auto;
   cursor: pointer;
   margin-left: 6px;
@@ -139,7 +140,7 @@
 .image-card.locked:hover .lock-indicator:hover {
   opacity: 1;
   transform: scale(1.1);
-  background: #4b5563;
+  background: var(--border);
 }
 
 /* ── Filename tooltip ── */
@@ -178,39 +179,17 @@
 .image-loading-placeholder {
   width: 100%;
   height: 100%;
-  background: #1a1e28;
-  position: relative;
-  overflow: hidden;
+  background: linear-gradient(90deg,
+    var(--bg-elevated) 25%,
+    var(--bg-highlight) 50%,
+    var(--bg-elevated) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
-.image-loading-placeholder::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.03) 20%,
-    rgba(255, 255, 255, 0.05) 50%,
-    rgba(255, 255, 255, 0.03) 80%,
-    transparent 100%
-  );
-  animation: subtle-shimmer 2.5s ease-in-out infinite;
-}
-
-@keyframes subtle-shimmer {
-  0% {
-    left: -100%;
-  }
-  50% {
-    left: 150%;
-  }
-  100% {
-    left: 150%;
-  }
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
 }
 
 /* ── Image error placeholder ── */
@@ -221,8 +200,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #2a2f3a;
-  color: #ef4444;
+  background: var(--bg-elevated);
+  color: var(--red);
   font-size: 12px;
   gap: 4px;
   cursor: pointer;
@@ -230,11 +209,10 @@
 }
 
 .image-error-placeholder:hover {
-  background: #353a48;
+  background: var(--bg-highlight);
 }
 
 .error-icon {
-  font-size: 20px;
   opacity: 0.7;
 }
 

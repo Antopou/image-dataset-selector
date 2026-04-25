@@ -8,21 +8,16 @@ function ImagePreviewModal({ image, images, currentIndex, onClose, onNext, onPre
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [imageSrc, setImageSrc] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [showShortcuts, setShowShortcuts] = useState(false);
-  const [cropMode, setCropMode] = useState(false);
-  const [cropArea, setCropArea] = useState({ x: 50, y: 50, width: 200, height: 200 });
-  const [isCropping, setIsCropping] = useState(false);
-  const [cropStart, setCropStart] = useState({ x: 0, y: 0 });
 
   // Load image data when image changes
   useEffect(() => {
     if (!image) return;
-    
+
     const loadImage = async () => {
       setImageSrc('');
       setIsLoading(true);
 
-      // Defer so the browser paints the spinner before the heavy load blocks the thread
+      // Defer so the browser paints the shimmer before the heavy load blocks the thread
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
       const minLoadTime = new Promise(resolve => setTimeout(resolve, 250));
@@ -65,7 +60,7 @@ function ImagePreviewModal({ image, images, currentIndex, onClose, onNext, onPre
         setIsLoading(false);
       }
     };
-    
+
     loadImage();
   }, [image]);
 
@@ -123,47 +118,6 @@ function ImagePreviewModal({ image, images, currentIndex, onClose, onNext, onPre
     }
   }, [onClose, onNext, onPrev]);
 
-  const handleCropImage = useCallback(() => {
-    // TODO: Implement actual crop functionality
-    console.log('Crop image:', cropArea);
-    setCropMode(false);
-  }, [cropArea]);
-
-  const handleCropMouseDown = useCallback((e) => {
-    if (!cropMode) return;
-    e.preventDefault();
-    const rect = e.currentTarget.getBoundingClientRect();
-    setIsCropping(true);
-    setCropStart({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    });
-    setCropArea({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-      width: 0,
-      height: 0
-    });
-  }, [cropMode]);
-
-  const handleCropMouseMove = useCallback((e) => {
-    if (!isCropping || !cropMode) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const currentX = e.clientX - rect.left;
-    const currentY = e.clientY - rect.top;
-    
-    setCropArea({
-      x: Math.min(cropStart.x, currentX),
-      y: Math.min(cropStart.y, currentY),
-      width: Math.abs(currentX - cropStart.x),
-      height: Math.abs(currentY - cropStart.y)
-    });
-  }, [isCropping, cropMode, cropStart]);
-
-  const handleCropMouseUp = useCallback(() => {
-    setIsCropping(false);
-  }, []);
-
   useEffect(() => {
     window.addEventListener('keydown', handleKeydown);
     return () => window.removeEventListener('keydown', handleKeydown);
@@ -192,14 +146,12 @@ function ImagePreviewModal({ image, images, currentIndex, onClose, onNext, onPre
           </div>
           <button className="preview-close" onClick={onClose}>×</button>
         </div>
-        
-        <div 
-          className={`preview-image-container ${cropMode ? 'crop-mode' : ''}`}
+
+        <div
+          className="preview-image-container"
           onWheel={handleWheel}
-          onMouseDown={cropMode ? handleCropMouseDown : handleMouseDown}
-          onMouseMove={cropMode ? handleCropMouseMove : undefined}
-          onMouseUp={cropMode ? handleCropMouseUp : undefined}
-          style={{ cursor: cropMode ? 'crosshair' : (zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default') }}
+          onMouseDown={handleMouseDown}
+          style={{ cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default' }}
         >
           {isLoading ? (
             <div className="preview-loading">
@@ -212,43 +164,25 @@ function ImagePreviewModal({ image, images, currentIndex, onClose, onNext, onPre
               className="preview-image"
               style={{
                 transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
-                cursor: cropMode ? 'crosshair' : (zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default')
+                cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
               }}
               draggable={false}
             />
           )}
-          {cropMode && (
-            <div 
-              className="crop-overlay"
-              style={{
-                left: `${cropArea.x}px`,
-                top: `${cropArea.y}px`,
-                width: `${cropArea.width}px`,
-                height: `${cropArea.height}px`
-              }}
-            >
-              <div className="crop-corners">
-                <div className="crop-corner top-left"></div>
-                <div className="crop-corner top-right"></div>
-                <div className="crop-corner bottom-left"></div>
-                <div className="crop-corner bottom-right"></div>
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="preview-controls">
-          <button 
-            className="preview-nav-btn" 
+          <button
+            className="preview-nav-btn"
             onClick={onPrev}
             disabled={currentIndex === 0}
             title="Previous image (←)"
           >
             ‹
           </button>
-          
+
           <div className="preview-zoom-controls">
-            <button 
+            <button
               onClick={() => setZoom(prev => Math.max(0.5, prev - 0.1))}
               disabled={zoom <= 0.5}
               title="Zoom out (-)"
@@ -256,23 +190,26 @@ function ImagePreviewModal({ image, images, currentIndex, onClose, onNext, onPre
               −
             </button>
             <span className="zoom-level">{Math.round(zoom * 100)}%</span>
-            <button 
+            <button
               onClick={() => setZoom(prev => Math.min(3, prev + 0.1))}
               disabled={zoom >= 3}
               title="Zoom in (+)"
             >
               +
             </button>
-            <button 
+            <button
               onClick={() => { setZoom(1); setPosition({ x: 0, y: 0 }); }}
               title="Reset zoom (0)"
             >
-              ⟲
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+              </svg>
             </button>
           </div>
-          
-          <button 
-            className="preview-nav-btn" 
+
+          <button
+            className="preview-nav-btn"
             onClick={onNext}
             disabled={currentIndex === images.length - 1}
             title="Next image (→)"
@@ -280,12 +217,6 @@ function ImagePreviewModal({ image, images, currentIndex, onClose, onNext, onPre
             ›
           </button>
         </div>
-
-        {showShortcuts && (
-          <div className="preview-shortcuts">
-            <span>ESC: Close | ←→: Navigate | +/-: Zoom | 0: Reset | Drag: Pan</span>
-          </div>
-        )}
       </div>
     </div>
   );

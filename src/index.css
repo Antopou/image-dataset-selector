@@ -33,6 +33,7 @@
   --red:           #ff5c6a;
   --red-hover:     #ff7a86;
   --red-glow:      rgba(255, 92, 106, 0.15);
+  --danger:        var(--red);
 
   --amber:         #f5a623;
   --amber-bg:      rgba(245, 166, 35, 0.1);
