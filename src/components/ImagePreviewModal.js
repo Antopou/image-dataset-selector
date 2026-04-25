@@ -7,6 +7,7 @@ function ImagePreviewModal({ image, images, currentIndex, onClose, onNext, onPre
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [imageSrc, setImageSrc] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [cropMode, setCropMode] = useState(false);
   const [cropArea, setCropArea] = useState({ x: 50, y: 50, width: 200, height: 200 });
@@ -18,20 +19,35 @@ function ImagePreviewModal({ image, images, currentIndex, onClose, onNext, onPre
     if (!image) return;
     
     const loadImage = async () => {
+      setImageSrc('');
+      setIsLoading(true);
+
+      // Defer so the browser paints the spinner before the heavy load blocks the thread
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+      const minLoadTime = new Promise(resolve => setTimeout(resolve, 250));
+
       if (image.previewSrc && image.previewSrc !== '') {
         setImageSrc(image.previewSrc);
+        await minLoadTime;
+        setIsLoading(false);
         return;
       }
-      
+
       if (!window.electronAPI || !image.path) {
-        setImageSrc('');
+        await minLoadTime;
+        setIsLoading(false);
         return;
       }
-      
+
       try {
         const base64 = await window.electronAPI.getImageData(image.path);
-        if (!base64) return;
-        
+        if (!base64) {
+          await minLoadTime;
+          setIsLoading(false);
+          return;
+        }
+
         const ext = (image.name || '').toLowerCase().split('.').pop();
         const mime = ext === 'png' ? 'image/png'
           : ext === 'gif' ? 'image/gif'
@@ -39,12 +55,14 @@ function ImagePreviewModal({ image, images, currentIndex, onClose, onNext, onPre
           : ext === 'bmp' ? 'image/bmp'
           : ext === 'svg' ? 'image/svg+xml'
           : 'image/jpeg';
-        
-        const dataUrl = `data:${mime};base64,${base64}`;
-        setImageSrc(dataUrl);
+
+        setImageSrc(`data:${mime};base64,${base64}`);
+        await minLoadTime;
+        setIsLoading(false);
       } catch (err) {
         console.error('Failed to load preview image:', err);
-        setImageSrc('');
+        await minLoadTime;
+        setIsLoading(false);
       }
     };
     
@@ -183,16 +201,22 @@ function ImagePreviewModal({ image, images, currentIndex, onClose, onNext, onPre
           onMouseUp={cropMode ? handleCropMouseUp : undefined}
           style={{ cursor: cropMode ? 'crosshair' : (zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default') }}
         >
-          <img
-            src={imageSrc}
-            alt={image.name}
-            className="preview-image"
-            style={{
-              transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
-              cursor: cropMode ? 'crosshair' : (zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default')
-            }}
-            draggable={false}
-          />
+          {isLoading ? (
+            <div className="preview-loading">
+              <div className="preview-spinner" />
+            </div>
+          ) : (
+            <img
+              src={imageSrc}
+              alt={image.name}
+              className="preview-image"
+              style={{
+                transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
+                cursor: cropMode ? 'crosshair' : (zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default')
+              }}
+              draggable={false}
+            />
+          )}
           {cropMode && (
             <div 
               className="crop-overlay"

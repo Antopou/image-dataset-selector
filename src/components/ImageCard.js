@@ -109,11 +109,6 @@ function ImageCard({ image, imageIndex, isSelected, isLocked, isAnchor, onCardCl
       )}
       <div className="image-card-overlay">
         <div className="checkbox">{isSelected && '✓'}</div>
-        {isAnchor && (
-          <div className="anchor-indicator" title="Selection start point (Shift+Click to select range)">
-            ●
-          </div>
-        )}
         {isLocked && (
           <div className="lock-indicator" onClick={handleLockClick} title="Click to unlock">
             🔒

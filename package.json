@@ -7,7 +7,7 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "react-start": "set BROWSER=none && react-scripts start",
+    "react-start": "cross-env BROWSER=none react-scripts start",
     "react-build": "react-scripts build",
     "electron-start": "electron .",
     "start": "concurrently \"npm run react-start\" \"wait-on http://localhost:3000 && npm run electron-start\"",
@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.0",
+    "cross-env": "^7.0.3",
     "electron": "^27.0.0",
     "electron-builder": "^24.4.0",
     "wait-on": "^7.0.1"
